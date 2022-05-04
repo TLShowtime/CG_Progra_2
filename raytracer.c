@@ -37,7 +37,7 @@ void createImage(){
     iter = DestroyPixelIterator(iter);
 
     MagickWriteImage(wand, "imagen.avs");
-    MagickWriteImage(wand, "imagen.jpeg");
+    MagickWriteImage(wand, "imagen.jpg");
 
     // Termina la libreria
     wand = DestroyMagickWand(wand);
