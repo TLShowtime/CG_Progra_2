@@ -44,6 +44,38 @@ void createImage(){
     MagickWandTerminus();
 };
 
+void raytracing(){
+    int i, j;
+    long double x_w, y_w,z_w,
+                L,
+                x_d, y_d, z_d;
+    COLOR* pixel;
+    z_w = 0;
+
+    for (i = 0; i < H_RES; i++) 
+        {
+        for (j = 0; j < W_RES; j++) 
+            {
+                x_w = (i + 1/2) * (x_max - x_min)/H_RES + x_min;
+                y_w = (j + 1/2) * (y_max - y_min)/W_RES + y_min;
+
+                L = sqrt((x_w - x_e)*(x_w - x_e) + 
+                     (y_w - y_e)*(y_w - y_e) +   
+                     (z_w - z_e)*(z_w - z_e));
+                
+                x_d = (x_w - x_e)/L;
+                y_d = (y_w - y_e)/L;
+                z_d = (z_w - z_e)/L;
+                //printf("")
+                //pixel = de_que_color();
+
+                buffer[i][j].r = 0;
+                buffer[i][j].g = 0;
+                buffer[i][j].b = 0;
+            }
+        }
+};
+
 int main (){
     int i, j;
 
@@ -63,6 +95,8 @@ int main (){
             }
         }
     
+    raytracing();
+
     createImage();
     return 0;
 }

@@ -9,7 +9,7 @@ $(OUTPUT): $(OUTPUT).c
 SRCS = $(shell find  -name '*.c')
 
 all:
-	cc  -o $(OUTPUT) $(SRCS)  `pkg-config --cflags --libs MagickWand`
+	cc  -o $(OUTPUT) $(SRCS) -lm `pkg-config --cflags --libs MagickWand`
 
 run:
 	./$(OUTPUT)
