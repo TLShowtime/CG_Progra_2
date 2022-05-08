@@ -7,10 +7,10 @@
 #define W_RES 1008
 #define H_RES 567
 
-long double x_max = 0;
-long double x_min = 0;
-long double y_max = 0;
-long double y_min = 0;
+long double x_max = 200;
+long double x_min = -100;
+long double y_max = 200;
+long double y_min = -100;
 
 long double x_e = 0;
 long double y_e = 0;
@@ -60,7 +60,7 @@ typedef struct {
 void createImage();
 void raytracing();
 
-COLOR de_que_color();
+COLOR de_que_color(long double x_d, long double y_d, long double z_d);
 
 intersection F_inter();
 

@@ -67,9 +67,8 @@ void raytracing(){
                 x_d = (x_w - x_e)/L;
                 y_d = (y_w - y_e)/L;
                 z_d = (z_w - z_e)/L;
-                //printf("")
-                pixel = de_que_color();
-
+                //printf("x_d: %Lf, y_d: %Lf, z_d: %Lf\n", x_d, y_d, z_d);
+                pixel = de_que_color(x_d, y_d, z_d);
                 buffer[i][j].r = pixel.r;
                 buffer[i][j].g = pixel.g;
                 buffer[i][j].b = pixel.b;
@@ -90,7 +89,7 @@ COLOR de_que_color(long double x_d, long double y_d, long double z_d){
   L.x = x_p - inter.normal.x;
   L.y = y_p - inter.normal.y;
   L.z = z_p - inter.normal.z;
-  if (inter.existe)
+  if (!inter.existe)
     color = background;
   else
     color = inter.color;
