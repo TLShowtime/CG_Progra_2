@@ -3,28 +3,24 @@
 #include <math.h>
 #include <stdlib.h>
 #include <wand/MagickWand.h>
+#include "figuras.h"
 
 #define W_RES 1008
 #define H_RES 567
+#define LISTA_SIZE 2
 
-long double x_max = 200;
-long double x_min = -100;
-long double y_max = 200;
-long double y_min = -100;
+long double x_max = 400;
+long double x_min = -400;
+long double y_max = 400;
+long double y_min = -400;
 
 long double x_e = 0;
 long double y_e = 0;
-long double z_e = 0;
+long double z_e = -100;
 
 long double x_p = 0;
-long double y_p = 10;
-long double z_p = 10;
-
-typedef struct {
-  double r;
-  double g;
-  double b;
-} COLOR;
+long double y_p = 0;
+long double z_p = 0;
 
 typedef struct {
   long double x;
@@ -36,32 +32,34 @@ typedef struct{
   COLOR color;
   VECTOR punto;
   VECTOR normal;
-  bool existe;
   long double t;
 } intersection;
 
-typedef struct {
-  long double x_c;
-  long double y_c;
-  long double z_c;
-  long double r;
-  COLOR color;
-  /*Formula:  (x - xc)² + (y - yc)² + (z - zc)² - r² = 0
-              (ojo.x + t*xd - xc)² + (ojo.y + t*yd - yc)² + (ojo.z + t*zd - zc)² - r² = 0
-              t²(xd)² + t(2(xd(ojo.x - xc))) + (ojo.x - xc)² +
-              t²(yd)² + t(2(yd(ojo.y - yc))) + (ojo.y - yc)² +
-              t²(zd)² + t(2(zd(ojo.z - zc))) + (ojo.z - zc)² - r² = 0
 
-              t²a + tb + c
-              t = (-b +- sqrt(b² - 4ac))/2a 
-  */
-} sphere;
 
 void createImage();
 void raytracing();
 
 COLOR de_que_color(long double x_d, long double y_d, long double z_d);
 
-intersection F_inter();
+intersection* F_inter();
 
-intersection calcInterEsfera();
+intersection* calcInterEsfera();
+
+
+/*
+####################################################################################################################
+====================================================================================================================
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+====================================================================================================================
+####################################################################################################################
+*/
+
+sphere esfera1 = {.x_c = 0, .y_c = 0, .z_c = 20, .r = 60, .color = {.r=255, .g=0, .b=0} };
+
+sphere esfera2 = {.x_c = 70, .y_c = 10, .z_c = 10, .r = 50, .color = {.r=0, .g=255, .b=0} };
+
+sphere* listaObjetos[LISTA_SIZE] = {
+  &esfera1,&esfera2
+};
