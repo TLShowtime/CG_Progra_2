@@ -51,13 +51,13 @@ void raytracing(){
                 L,
                 x_d, y_d, z_d;
     COLOR pixel;// Le quité el puntero para probar
-    z_w = 0;
+    VECTOR vector_ojo = {.x = x_e, .y = y_e, .z = z_e};
 
     for (i = 0; i < W_RES; i++) {
         for (j = 0; j < H_RES; j++) {
             x_w = (i + 1/2) * (x_max - x_min)/W_RES + x_min;
             y_w = (j + 1/2) * (y_max - y_min)/H_RES + y_min;
-
+            z_w = 0;
             L = sqrtl((x_w - x_e)*(x_w - x_e) + 
                      (y_w - y_e)*(y_w - y_e) +   
                      (z_w - z_e)*(z_w - z_e));
@@ -65,7 +65,9 @@ void raytracing(){
             x_d = (x_w - x_e)/L;
             y_d = (y_w - y_e)/L;
             z_d = (z_w - z_e)/L;
-            pixel = de_que_color(x_d, y_d, z_d);
+            VECTOR vector_dir = {.x = x_d, .y = y_d, .z = z_d};
+            //pixel = de_que_color(x_d, y_d, z_d);
+            pixel = de_que_color(vector_ojo, vector_dir);
             buffer[j][i].r = pixel.r;
             buffer[j][i].g = pixel.g;
             buffer[j][i].b = pixel.b;
@@ -78,11 +80,29 @@ void raytracing(){
 -----------------------------------------------------------------------------------------------------------------------------------------
 #########################################################################################################################################
 */
-
+/**
 COLOR de_que_color(long double x_d, long double y_d, long double z_d){
   COLOR color;
   VECTOR L;
   intersection* inter = F_inter(x_d, y_d, z_d);
+  if (!inter){
+      color = background;
+  }
+  else{
+      color = inter->color;
+      //L.x = x_p - inter->normal.x; // comentado para probar lo primero
+      //L.y = y_p - inter->normal.y;
+      //L.z = z_p - inter->normal.z;
+      free(inter);
+  }
+  return color;
+};
+*/
+
+COLOR de_que_color(VECTOR ojo, VECTOR direccion){
+  COLOR color;
+  VECTOR L;
+  intersection* inter = F_inter(ojo, direccion);
   if (!inter){
       color = background;
   }
@@ -101,7 +121,7 @@ COLOR de_que_color(long double x_d, long double y_d, long double z_d){
 -----------------------------------------------------------------------------------------------------------------------------------------
 #########################################################################################################################################
 */
-
+/**
 intersection* F_inter(long double x_d, long double y_d, long double z_d){
   intersection* inter;
   intersection* near;
@@ -118,19 +138,37 @@ intersection* F_inter(long double x_d, long double y_d, long double z_d){
   }
   return near;
 };
+*/
+
+intersection* F_inter(VECTOR a, VECTOR d){
+  intersection* inter;
+  intersection* near;
+  //inter.existe = false;
+  inter = NULL;
+  near = NULL;
+  long double tmin = 100000000000;// = 1/0;
+  for (int i = 0; i < LISTA_SIZE; i++){ 
+    inter = calcInterEsfera(listaObjetos[i], a, d); 
+    if (inter && inter->t < tmin){
+      tmin = inter->t;// tmin = d a inter;
+      near = inter;//inter = inter con obj;
+    }
+  }
+  return near;
+};
 
 /*
 #########################################################################################################################################
 -----------------------------------------------------------------------------------------------------------------------------------------
 #########################################################################################################################################
 */
-
+/**
 intersection* calcInterEsfera(sphere* esfera, long double x_d, long double y_d, long double z_d){
     long double b, c, t, t1, t2, discriminante;
     intersection* inter;
     inter = NULL;
     b = 2*( x_d*(x_e - esfera->x_c) + y_d*(y_e - esfera->y_c) + z_d*(z_e - esfera->z_c));
-    c = powl((x_e - esfera->x_c), 2) + powl((y_e - esfera->y_c), 2) + powl((z_e - esfera->z_c), 2) - powl((esfera->r), 2);
+    c = powl((x_e - esfera->x_c), 2) + powl((y_e - esfera->y_c), 2) + powl((z_e - esfera->z_c), 2) - powl(esfera->r, 2);
     discriminante = b*b - 4*c;
 
     if (discriminante < 0){
@@ -141,8 +179,11 @@ intersection* calcInterEsfera(sphere* esfera, long double x_d, long double y_d, 
     } else {
         t1 = (-b + sqrtl(discriminante))/2;
         t2 = (-b - sqrtl(discriminante))/2;
-        if (t1 <= t2 && t1 > 0){
+        if (t1 < t2 && t1 > 0){
             t = t1;
+        }
+        else if (t1 < 0 && t2 < 0){
+            return inter;
         }
         else{
             t = t2;
@@ -160,7 +201,45 @@ intersection* calcInterEsfera(sphere* esfera, long double x_d, long double y_d, 
     inter->normal.z = (inter->punto.z - esfera->z_c)/esfera->r;
     return inter;
 };
+*/
+intersection* calcInterEsfera(sphere* esfera, VECTOR eye, VECTOR d){
+    long double b, c, t, t1, t2, discriminante;
+    intersection* inter;
+    inter = NULL;
+    b = 2*( d.x*(eye.x - esfera->x_c) + d.y*(eye.y - esfera->y_c) + d.z*(eye.z - esfera->z_c));
+    c = powl((eye.x - esfera->x_c), 2) + powl((eye.y - esfera->y_c), 2) + powl((eye.z - esfera->z_c), 2) - powl(esfera->r, 2);
+    discriminante = b*b - 4*c;
 
+    if (discriminante < 0){
+        return inter;
+    }
+    else if (discriminante == 0.0){
+        t = -b / 2;
+    } else {
+        t1 = (-b + sqrtl(discriminante))/2;
+        t2 = (-b - sqrtl(discriminante))/2;
+        if (t1 < t2 && t1 > 0){
+            t = t1;
+        }
+        else if (t1 < 0 && t2 < 0){
+            return inter;
+        }
+        else{
+            t = t2;
+        }
+    }
+    inter = malloc(sizeof(intersection));
+    inter->punto.x = x_e + t*d.x;
+    inter->punto.y = y_e + t*d.y;
+    inter->punto.z = z_e + t*d.z;
+    
+    inter->color = esfera->color;
+    inter->t = t;
+    inter->normal.x = (inter->punto.x - esfera->x_c)/esfera->r;
+    inter->normal.y = (inter->punto.y - esfera->y_c)/esfera->r;
+    inter->normal.z = (inter->punto.z - esfera->z_c)/esfera->r;
+    return inter;
+};
 /*
 #########################################################################################################################################
 -----------------------------------------------------------------------------------------------------------------------------------------

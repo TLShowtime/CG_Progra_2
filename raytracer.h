@@ -7,16 +7,16 @@
 
 #define W_RES 1008
 #define H_RES 567
-#define LISTA_SIZE 2
+#define LISTA_SIZE 3
 
-long double x_max = 400;
-long double x_min = -400;
-long double y_max = 400;
-long double y_min = -400;
+long double x_max = W_RES/4;
+long double x_min = -(W_RES/4);
+long double y_max = H_RES/4;
+long double y_min = -(H_RES/4);
 
 long double x_e = 0;
 long double y_e = 0;
-long double z_e = -100;
+long double z_e = -(H_RES/2);
 
 long double x_p = 0;
 long double y_p = 0;
@@ -40,11 +40,11 @@ typedef struct{
 void createImage();
 void raytracing();
 
-COLOR de_que_color(long double x_d, long double y_d, long double z_d);
+COLOR de_que_color(VECTOR ojo, VECTOR direccion);
 
-intersection* F_inter();
+intersection* F_inter(VECTOR a, VECTOR d);
 
-intersection* calcInterEsfera();
+intersection* calcInterEsfera(sphere* esfera, VECTOR eye, VECTOR d);
 
 
 /*
@@ -56,10 +56,11 @@ intersection* calcInterEsfera();
 ####################################################################################################################
 */
 
-sphere esfera1 = {.x_c = 0, .y_c = 0, .z_c = 20, .r = 60, .color = {.r=255, .g=0, .b=0} };
+sphere esfera1 = {.x_c = 40, .y_c = 0, .z_c = 50, .r = 60, .color = {.r=255, .g=0, .b=0} };
 
-sphere esfera2 = {.x_c = 70, .y_c = 10, .z_c = 10, .r = 50, .color = {.r=0, .g=255, .b=0} };
+sphere esfera2 = {.x_c = -40, .y_c = 0, .z_c = 10, .r = 30, .color = {.r=0, .g=255, .b=0} };
+sphere esfera3 = {.x_c = 80, .y_c = -50, .z_c = 100, .r = 100, .color = {.r=0, .g=0, .b=255} };
 
 sphere* listaObjetos[LISTA_SIZE] = {
-  &esfera1,&esfera2
+  &esfera1, &esfera2, &esfera3
 };
