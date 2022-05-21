@@ -2,12 +2,15 @@
 #include <stdbool.h>
 #include <math.h>
 #include <stdlib.h>
+#include <string.h>
 #include <wand/MagickWand.h>
 #include "figuras.h"
 
 #define W_RES 1008
 #define H_RES 567
-#define LISTA_SIZE 3
+#define LISTA_SIZE 30
+
+int lista_length = LISTA_SIZE;
 
 long double x_max = W_RES/4;
 long double x_min = -(W_RES/4);
@@ -56,11 +59,4 @@ intersection* calcInterEsfera(sphere* esfera, VECTOR eye, VECTOR d);
 ####################################################################################################################
 */
 
-sphere esfera1 = {.x_c = 40, .y_c = 0, .z_c = 50, .r = 60, .color = {.r=255, .g=0, .b=0} };
-
-sphere esfera2 = {.x_c = -40, .y_c = 0, .z_c = 10, .r = 30, .color = {.r=0, .g=255, .b=0} };
-sphere esfera3 = {.x_c = 80, .y_c = -50, .z_c = 100, .r = 100, .color = {.r=0, .g=0, .b=255} };
-
-sphere* listaObjetos[LISTA_SIZE] = {
-  &esfera1, &esfera2, &esfera3
-};
+sphere* listaObjetos[LISTA_SIZE];

@@ -20,3 +20,15 @@ o
 ```
 
 Se crean dos imagenes, un .avs y un .jpg
+
+Se usa un archivo de figuras llamado **figuras.txt** donde la sintaxis es el siguiente:
+
+```
+    x;value
+    y;value
+    z;value
+    r;value
+    color;r_value,g_value,b_value
+
+```
+El archivo debe terminar con un enter para registrar la ultima figura. Se supone que la sintaxis es valida.

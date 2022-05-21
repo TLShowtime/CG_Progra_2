@@ -3,6 +3,7 @@
 COLOR **buffer;
 COLOR background = {.r=0, .g=0, .b=0};
 
+
 // Crea la imagen en base al buffer .avs
 void createImage(){
     size_t x, y, 
@@ -147,7 +148,7 @@ intersection* F_inter(VECTOR a, VECTOR d){
   inter = NULL;
   near = NULL;
   long double tmin = 100000000000;// = 1/0;
-  for (int i = 0; i < LISTA_SIZE; i++){ 
+  for (int i = 0; i < lista_length; i++){ 
     inter = calcInterEsfera(listaObjetos[i], a, d); 
     if (inter && inter->t < tmin){
       tmin = inter->t;// tmin = d a inter;
@@ -264,6 +265,53 @@ int main (){
                 buffer[i][j].b = 0;
             }
         }
+    
+    char *filename = "figuras.txt";
+    FILE *fp = fopen(filename, "r");
+    if (fp == NULL){
+        printf("Error: could not open file %s", filename);
+        exit(1);
+    }
+
+    const unsigned MAX_LENGTH = 256;
+    char buffer [MAX_LENGTH];
+    char* color_buffer;
+    char* color_delim = ",";
+    char* delim = ";";
+    char* key;
+    char* value;
+    int real_object_size = 0;
+    listaObjetos[real_object_size] = malloc(sizeof(sphere));
+    while (fgets(buffer, MAX_LENGTH, fp)){ // read each line
+        
+        key = strtok(buffer, delim);
+        value = strtok(NULL, delim);
+        if (strcasecmp(key, "x") == 0) {
+            listaObjetos[real_object_size]->x_c = atoi(value);
+        } else if (strcasecmp(key, "y") == 0){
+            listaObjetos[real_object_size]->y_c = atoi(value);
+        } else if (strcasecmp(key, "z") == 0){
+            listaObjetos[real_object_size]->z_c = atoi(value);
+        } else if (strcasecmp(key, "r") == 0){
+            listaObjetos[real_object_size]->r = atoi(value);
+        } else if (strcasecmp(key, "color") == 0){
+            color_buffer = strtok(value, color_delim);
+            listaObjetos[real_object_size]->color.r = atoi(color_buffer);
+            color_buffer = strtok(NULL, color_delim);
+            listaObjetos[real_object_size]->color.g = atoi(color_buffer);
+            color_buffer = strtok(NULL, color_delim);
+            listaObjetos[real_object_size]->color.b = atoi(color_buffer);     
+        } 
+ 
+        if (value == NULL){ // Debe tener un enter para calcular todo
+            real_object_size++;
+            listaObjetos[real_object_size] = malloc(sizeof(sphere));
+        };
+    }
+    lista_length = real_object_size;
+
+    fclose(fp);
+    
     raytracing();
     createImage();
     printf("Todo está sirviendo :)\n");
