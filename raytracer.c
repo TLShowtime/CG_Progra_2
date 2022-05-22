@@ -30,6 +30,7 @@ void createImage(){
     for (y = 0; y < H_RES; ++ y) {
         row = PixelGetNextIteratorRow(iter, &row_width);
         for (x = 0; x < row_width; ++ x) {
+            //if (buffer[y][x].r > 0 || buffer[y][x].g > 0 || buffer[y][x].b > 0) printf("Red: %f, Green: %f, Blue: %f \n", buffer[y][x].r, buffer[y][x].g, buffer[y][x].b);
             PixelSetRed(row[x], buffer[y][x].r);
             PixelSetGreen(row[x], buffer[y][x].g);
             PixelSetBlue(row[x], buffer[y][x].b);
@@ -69,9 +70,11 @@ void raytracing(){
             VECTOR vector_dir = {.x = x_d, .y = y_d, .z = z_d};
             //pixel = de_que_color(x_d, y_d, z_d);
             pixel = de_que_color(vector_ojo, vector_dir);
+            //if (pixel.r > 0 || pixel.g > 0 || pixel.b > 0) printf("Red: %f, Green: %f, Blue: %f \n", pixel.r, pixel.g, pixel.b);
             buffer[j][i].r = pixel.r;
             buffer[j][i].g = pixel.g;
             buffer[j][i].b = pixel.b;
+            //if (buffer[j][i].r > 0 || buffer[j][i].g > 0 || buffer[j][i].b > 0) printf("Red: %f, Green: %f, Blue: %f \n", buffer[j][i].r, buffer[j][i].g, buffer[j][i].b);
         }
     }
 };
@@ -103,15 +106,42 @@ COLOR de_que_color(long double x_d, long double y_d, long double z_d){
 COLOR de_que_color(VECTOR ojo, VECTOR direccion){
   COLOR color;
   VECTOR L;
+  long double I = 0;
+  long double distance, fatt;
   intersection* inter = F_inter(ojo, direccion);
   if (!inter){
       color = background;
   }
   else{
-      color = inter->color;
-      //L.x = x_p - inter->normal.x; // comentado para probar lo primero
-      //L.y = y_p - inter->normal.y;
-      //L.z = z_p - inter->normal.z;
+        for(int j = 0; j < luces_length; j++){
+          L.x = listaLuces[j]->x - inter->normal.x;
+          L.y = listaLuces[j]->y - inter->normal.y;
+          L.z = listaLuces[j]->z - inter->normal.z;
+          distance = sqrtl((L.x*L.x)+(L.y*L.y)+(L.z*L.z));
+          L.x = L.x/distance;
+          L.y = L.y/distance;
+          L.z = L.z/distance;
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+          fatt = 1/(0.5 + 0.25*distance + 0*distance*distance);
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+          if (fatt > 1) fatt = 1;
+
+          I += (L.x * inter->normal.x + L.y * inter->normal.y + L.z * inter->normal.z) * listaLuces[j]->I_p * inter->K_D * fatt;  
+        }
+
+
+      I += I_A * inter->K_A;
+
+      if (I > 1) I = 1;
+      else if (I < 0) I = 0;
+
+      color.r = I * (inter->color.r/255);
+      color.g = I * (inter->color.g/255);
+      color.b = I * (inter->color.b/255);
       free(inter);
   }
   return color;
@@ -239,6 +269,8 @@ intersection* calcInterEsfera(sphere* esfera, VECTOR eye, VECTOR d){
     inter->normal.x = (inter->punto.x - esfera->x_c)/esfera->r;
     inter->normal.y = (inter->punto.y - esfera->y_c)/esfera->r;
     inter->normal.z = (inter->punto.z - esfera->z_c)/esfera->r;
+    inter->K_D = esfera->K_D;
+    inter->K_A = esfera->K_A;
     return inter;
 };
 /*
@@ -272,6 +304,12 @@ int main (){
         printf("Error: could not open file %s", filename);
         exit(1);
     }
+    char *lucesFile = "luces.txt";
+    FILE *fp1 = fopen(lucesFile, "r");
+    if (fp1 == NULL){
+        printf("Error: could not open file %s", lucesFile);
+        exit(1);
+    }
 
     const unsigned MAX_LENGTH = 256;
     char buffer [MAX_LENGTH];
@@ -281,6 +319,7 @@ int main (){
     char* key;
     char* value;
     int real_object_size = 0;
+    int real_light_size = 0;
     listaObjetos[real_object_size] = malloc(sizeof(sphere));
     while (fgets(buffer, MAX_LENGTH, fp)){ // read each line
         
@@ -294,6 +333,10 @@ int main (){
             listaObjetos[real_object_size]->z_c = atoi(value);
         } else if (strcasecmp(key, "r") == 0){
             listaObjetos[real_object_size]->r = atoi(value);
+        } else if (strcasecmp(key, "K_D") == 0){
+            listaObjetos[real_object_size]->K_D = strtold(value, NULL);
+        } else if (strcasecmp(key, "K_A") == 0){
+            listaObjetos[real_object_size]->K_A = strtold(value, NULL);
         } else if (strcasecmp(key, "color") == 0){
             color_buffer = strtok(value, color_delim);
             listaObjetos[real_object_size]->color.r = atoi(color_buffer);
@@ -311,6 +354,28 @@ int main (){
     lista_length = real_object_size;
 
     fclose(fp);
+
+    listaLuces[real_light_size] = malloc(sizeof(light));
+    while (fgets(buffer, MAX_LENGTH, fp1)){ // read each line
+        
+        key = strtok(buffer, delim);
+        value = strtok(NULL, delim);
+        if (strcasecmp(key, "x") == 0) {
+            listaLuces[real_light_size]->x = atoi(value);
+        } else if (strcasecmp(key, "y") == 0){
+            listaLuces[real_light_size]->y = atoi(value);
+        } else if (strcasecmp(key, "z") == 0){
+            listaLuces[real_light_size]->z = atoi(value);
+        } else if (strcasecmp(key, "I_p") == 0){
+            listaLuces[real_light_size]->I_p = strtold(value, NULL);
+        }
+ 
+        if (value == NULL){ // Debe tener un enter para calcular todo
+            real_light_size++;
+            listaLuces[real_light_size] = malloc(sizeof(light));
+        };
+    }
+    luces_length = real_light_size;
     
     raytracing();
     createImage();

@@ -9,6 +9,8 @@ typedef struct {
   long double y_c;
   long double z_c;
   long double r;
+  long double K_D;
+  long double K_A;
   COLOR color;
   /*Formula:  (x - xc)² + (y - yc)² + (z - zc)² - r² = 0
               (ojo.x + t*xd - xc)² + (ojo.y + t*yd - yc)² + (ojo.z + t*zd - zc)² - r² = 0
@@ -20,4 +22,11 @@ typedef struct {
               t = (-b +- sqrt(b² - 4ac))/2a 
   */
 } sphere;
+
+typedef struct {
+  long double x;
+  long double y;
+  long double z;
+  long double I_p;
+} light;
 

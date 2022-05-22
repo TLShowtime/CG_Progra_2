@@ -11,6 +11,7 @@
 #define LISTA_SIZE 30
 
 int lista_length = LISTA_SIZE;
+int luces_length = LISTA_SIZE;
 
 long double x_max = W_RES/4;
 long double x_min = -(W_RES/4);
@@ -21,10 +22,12 @@ long double x_e = 0;
 long double y_e = 0;
 long double z_e = -(H_RES/2);
 
+long double I_A = 0.15;
+/*
 long double x_p = 0;
 long double y_p = 0;
 long double z_p = 0;
-
+*/
 typedef struct {
   long double x;
   long double y;
@@ -36,6 +39,8 @@ typedef struct{
   VECTOR punto;
   VECTOR normal;
   long double t;
+  long double K_D;
+  long double K_A;
 } intersection;
 
 
@@ -60,3 +65,4 @@ intersection* calcInterEsfera(sphere* esfera, VECTOR eye, VECTOR d);
 */
 
 sphere* listaObjetos[LISTA_SIZE];
+light* listaLuces[LISTA_SIZE];
