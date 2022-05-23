@@ -129,8 +129,9 @@ COLOR de_que_color(VECTOR ojo, VECTOR direccion){
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
           if (fatt > 1) fatt = 1;
-
-          I += (L.x * inter->normal.x + L.y * inter->normal.y + L.z * inter->normal.z) * listaLuces[j]->I_p * inter->K_D * fatt;  
+          intersection* obstaculo = F_inter(inter->punto, L);
+          if (!obstaculo || obstaculo->t < distance) 
+          I += ((L.x * inter->normal.x + L.y * inter->normal.y + L.z * inter->normal.z) * listaLuces[j]->I_p * inter->K_D * fatt);
         }
 
 
@@ -180,7 +181,7 @@ intersection* F_inter(VECTOR a, VECTOR d){
   long double tmin = 100000000000;// = 1/0;
   for (int i = 0; i < lista_length; i++){ 
     inter = calcInterEsfera(listaObjetos[i], a, d); 
-    if (inter && inter->t < tmin){
+    if (inter && inter->t < tmin && inter->t > EPSILON){
       tmin = inter->t;// tmin = d a inter;
       near = inter;//inter = inter con obj;
     }

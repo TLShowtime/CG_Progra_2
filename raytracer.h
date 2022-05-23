@@ -9,6 +9,7 @@
 #define W_RES 1008
 #define H_RES 567
 #define LISTA_SIZE 30
+#define EPSILON 0.0005
 
 int lista_length = LISTA_SIZE;
 int luces_length = LISTA_SIZE;
