@@ -23,12 +23,8 @@ long double x_e = 0;
 long double y_e = 0;
 long double z_e = -(H_RES/2);
 
-long double I_A = 0.15;
-/*
-long double x_p = 0;
-long double y_p = 0;
-long double z_p = 0;
-*/
+long double I_A = 0.30;
+
 typedef struct {
   long double x;
   long double y;
@@ -55,6 +51,7 @@ intersection* F_inter(VECTOR a, VECTOR d);
 
 intersection* calcInterEsfera(sphere* esfera, VECTOR eye, VECTOR d);
 
+long double producto_punto(VECTOR a, VECTOR b);
 
 /*
 ####################################################################################################################
@@ -67,3 +64,6 @@ intersection* calcInterEsfera(sphere* esfera, VECTOR eye, VECTOR d);
 
 sphere* listaObjetos[LISTA_SIZE];
 light* listaLuces[LISTA_SIZE];
+
+void loadFiguras();
+void loadLuces();

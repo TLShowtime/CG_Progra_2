@@ -3,13 +3,18 @@
 COLOR **buffer;
 COLOR background = {.r=0, .g=0, .b=0};
 
+// Producto punto de dos vectores
+long double producto_punto(VECTOR a, VECTOR b){
+    return a.x*b.x + a.y*b.y + a.z*b.z;
+};
 
-// Crea la imagen en base al buffer .avs
+// Crea la imagen en base al buffer dando un .avs y un .jpg
 void createImage(){
-    size_t x, y, 
+    size_t x, 
     row_width,
     width = W_RES,
     height = H_RES;
+    int y;
 
     MagickWand *wand;
     PixelWand *bg;
@@ -27,7 +32,7 @@ void createImage(){
     bg = DestroyPixelWand(bg);
     
     iter = NewPixelIterator(wand);
-    for (y = 0; y < H_RES; ++ y) {
+    for (y = H_RES; y >= 0; y--) {
         row = PixelGetNextIteratorRow(iter, &row_width);
         for (x = 0; x < row_width; ++ x) {
             //if (buffer[y][x].r > 0 || buffer[y][x].g > 0 || buffer[y][x].b > 0) printf("Red: %f, Green: %f, Blue: %f \n", buffer[y][x].r, buffer[y][x].g, buffer[y][x].b);
@@ -84,24 +89,6 @@ void raytracing(){
 -----------------------------------------------------------------------------------------------------------------------------------------
 #########################################################################################################################################
 */
-/**
-COLOR de_que_color(long double x_d, long double y_d, long double z_d){
-  COLOR color;
-  VECTOR L;
-  intersection* inter = F_inter(x_d, y_d, z_d);
-  if (!inter){
-      color = background;
-  }
-  else{
-      color = inter->color;
-      //L.x = x_p - inter->normal.x; // comentado para probar lo primero
-      //L.y = y_p - inter->normal.y;
-      //L.z = z_p - inter->normal.z;
-      free(inter);
-  }
-  return color;
-};
-*/
 
 COLOR de_que_color(VECTOR ojo, VECTOR direccion){
   COLOR color;
@@ -123,17 +110,17 @@ COLOR de_que_color(VECTOR ojo, VECTOR direccion){
           L.z = L.z/distance;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-          fatt = 1/(0.5 + 0.25*distance + 0*distance*distance);
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+          fatt = 1/(listaLuces[j]->c1 + listaLuces[j]->c2*distance + listaLuces[j]->c3*distance*distance);
           if (fatt > 1) fatt = 1;
-          intersection* obstaculo = F_inter(inter->punto, L);
-          if (!obstaculo || obstaculo->t < distance) 
-          I += ((L.x * inter->normal.x + L.y * inter->normal.y + L.z * inter->normal.z) * listaLuces[j]->I_p * inter->K_D * fatt);
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+          if (producto_punto(inter->normal, L) > 0.0 ){
+            intersection* obstaculo = F_inter(inter->punto, L);
+            if (!obstaculo || obstaculo->t > distance){
+                I += ((producto_punto(inter->normal, L)) * listaLuces[j]->I_p * inter->K_D * fatt);
+            }
+            if (obstaculo) free(obstaculo);
+          } 
         }
-
 
       I += I_A * inter->K_A;
 
@@ -147,30 +134,6 @@ COLOR de_que_color(VECTOR ojo, VECTOR direccion){
   }
   return color;
 };
-
-/*
-#########################################################################################################################################
------------------------------------------------------------------------------------------------------------------------------------------
-#########################################################################################################################################
-*/
-/**
-intersection* F_inter(long double x_d, long double y_d, long double z_d){
-  intersection* inter;
-  intersection* near;
-  //inter.existe = false;
-  inter = NULL;
-  near = NULL;
-  long double tmin = 100000000000;// = 1/0;
-  for (int i = 0; i < LISTA_SIZE; i++){ 
-    inter = calcInterEsfera(listaObjetos[i], x_d, y_d, z_d); 
-    if (inter && inter->t < tmin){
-      tmin = inter->t;// tmin = d a inter;
-      near = inter;//inter = inter con obj;
-    }
-  }
-  return near;
-};
-*/
 
 intersection* F_inter(VECTOR a, VECTOR d){
   intersection* inter;
@@ -194,46 +157,7 @@ intersection* F_inter(VECTOR a, VECTOR d){
 -----------------------------------------------------------------------------------------------------------------------------------------
 #########################################################################################################################################
 */
-/**
-intersection* calcInterEsfera(sphere* esfera, long double x_d, long double y_d, long double z_d){
-    long double b, c, t, t1, t2, discriminante;
-    intersection* inter;
-    inter = NULL;
-    b = 2*( x_d*(x_e - esfera->x_c) + y_d*(y_e - esfera->y_c) + z_d*(z_e - esfera->z_c));
-    c = powl((x_e - esfera->x_c), 2) + powl((y_e - esfera->y_c), 2) + powl((z_e - esfera->z_c), 2) - powl(esfera->r, 2);
-    discriminante = b*b - 4*c;
 
-    if (discriminante < 0){
-        return inter;
-    }
-    else if (discriminante == 0.0){
-        t = -b / 2;
-    } else {
-        t1 = (-b + sqrtl(discriminante))/2;
-        t2 = (-b - sqrtl(discriminante))/2;
-        if (t1 < t2 && t1 > 0){
-            t = t1;
-        }
-        else if (t1 < 0 && t2 < 0){
-            return inter;
-        }
-        else{
-            t = t2;
-        }
-    }
-    inter = malloc(sizeof(intersection));
-    inter->punto.x = x_e + t*x_d;
-    inter->punto.y = y_e + t*y_d;
-    inter->punto.z = z_e + t*z_d;
-    
-    inter->color = esfera->color;
-    inter->t = t;
-    inter->normal.x = (inter->punto.x - esfera->x_c)/esfera->r;
-    inter->normal.y = (inter->punto.y - esfera->y_c)/esfera->r;
-    inter->normal.z = (inter->punto.z - esfera->z_c)/esfera->r;
-    return inter;
-};
-*/
 intersection* calcInterEsfera(sphere* esfera, VECTOR eye, VECTOR d){
     long double b, c, t, t1, t2, discriminante;
     intersection* inter;
@@ -280,47 +204,25 @@ intersection* calcInterEsfera(sphere* esfera, VECTOR eye, VECTOR d){
 #########################################################################################################################################
 */
 
-int main (){
-    int i, j;
-    
-    buffer = (COLOR **)malloc(H_RES * sizeof(COLOR*));
-    for (i = 0; i < W_RES; i++) 
-        {
-        buffer[i] = (COLOR *)malloc(W_RES * sizeof(COLOR));
-        }
-    
-    for (i = 0; i < H_RES; i++) 
-        {
-        for (j = 0; j < W_RES; j++) 
-            {
-                buffer[i][j].r = 0;
-                buffer[i][j].g = 0;
-                buffer[i][j].b = 0;
-            }
-        }
-    
+void loadFiguras(){
     char *filename = "figuras.txt";
+    const unsigned MAX_LENGTH = 256;
+
     FILE *fp = fopen(filename, "r");
     if (fp == NULL){
         printf("Error: could not open file %s", filename);
         exit(1);
     }
-    char *lucesFile = "luces.txt";
-    FILE *fp1 = fopen(lucesFile, "r");
-    if (fp1 == NULL){
-        printf("Error: could not open file %s", lucesFile);
-        exit(1);
-    }
 
-    const unsigned MAX_LENGTH = 256;
     char buffer [MAX_LENGTH];
     char* color_buffer;
     char* color_delim = ",";
     char* delim = ";";
     char* key;
     char* value;
+
     int real_object_size = 0;
-    int real_light_size = 0;
+
     listaObjetos[real_object_size] = malloc(sizeof(sphere));
     while (fgets(buffer, MAX_LENGTH, fp)){ // read each line
         
@@ -355,6 +257,25 @@ int main (){
     lista_length = real_object_size;
 
     fclose(fp);
+};
+
+void loadLuces(){
+    char *lucesFile = "luces.txt";
+    const unsigned MAX_LENGTH = 256;
+    FILE *fp1 = fopen(lucesFile, "r");
+    if (fp1 == NULL){
+        printf("Error: could not open file %s", lucesFile);
+        exit(1);
+    }
+
+    char buffer [MAX_LENGTH];
+    char* color_buffer;
+    char* color_delim = ",";
+    char* delim = ";";
+    char* key;
+    char* value;
+
+    int real_light_size = 0;
 
     listaLuces[real_light_size] = malloc(sizeof(light));
     while (fgets(buffer, MAX_LENGTH, fp1)){ // read each line
@@ -369,6 +290,12 @@ int main (){
             listaLuces[real_light_size]->z = atoi(value);
         } else if (strcasecmp(key, "I_p") == 0){
             listaLuces[real_light_size]->I_p = strtold(value, NULL);
+        } else if (strcasecmp(key, "c1") == 0){
+            listaLuces[real_light_size]->c1 = strtold(value, NULL);
+        } else if (strcasecmp(key, "c2") == 0){
+            listaLuces[real_light_size]->c2 = strtold(value, NULL);
+        } else if (strcasecmp(key, "c3") == 0){
+            listaLuces[real_light_size]->c3 = strtold(value, NULL);
         }
  
         if (value == NULL){ // Debe tener un enter para calcular todo
@@ -377,6 +304,32 @@ int main (){
         };
     }
     luces_length = real_light_size;
+
+    fclose(fp1);
+};
+
+int main (){
+    int i, j;
+    // crear el buffer
+    buffer = (COLOR **)malloc(H_RES * sizeof(COLOR*));
+    for (i = 0; i < W_RES; i++) 
+        {
+        buffer[i] = (COLOR *)malloc(W_RES * sizeof(COLOR));
+        }
+    
+    for (i = 0; i < H_RES; i++) 
+        {
+        for (j = 0; j < W_RES; j++) 
+            {
+                buffer[i][j].r = 0;
+                buffer[i][j].g = 0;
+                buffer[i][j].b = 0;
+            }
+        }
+
+    // Carga los archivos de las figuras y luces
+    loadFiguras();
+    loadLuces();
     
     raytracing();
     createImage();

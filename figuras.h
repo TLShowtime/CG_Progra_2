@@ -28,5 +28,8 @@ typedef struct {
   long double y;
   long double z;
   long double I_p;
+  long double c1;
+  long double c2;
+  long double c3;
 } light;
 
