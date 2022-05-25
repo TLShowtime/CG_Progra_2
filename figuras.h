@@ -9,8 +9,12 @@ typedef struct {
   long double y_c;
   long double z_c;
   long double r;
-  long double K_D;
-  long double K_A;
+  // iluminacion
+  long double K_D; // coeficiente reflexion difusa (material)
+  long double K_A; // ambiente
+  // reflexion difusa
+  long double K_S; // material
+  long double K_N; // mancha blanca
   COLOR color;
   /*Formula:  (x - xc)² + (y - yc)² + (z - zc)² - r² = 0
               (ojo.x + t*xd - xc)² + (ojo.y + t*yd - yc)² + (ojo.z + t*zd - zc)² - r² = 0

@@ -92,14 +92,19 @@ void raytracing(){
 
 COLOR de_que_color(VECTOR ojo, VECTOR direccion){
   COLOR color;
-  VECTOR L;
+  VECTOR L, R, V;
   long double I = 0;
+  long double E = 0;
   long double distance, fatt;
   intersection* inter = F_inter(ojo, direccion);
   if (!inter){
       color = background;
   }
   else{
+        V.x = -1 * direccion.x;
+        V.y = -1 * direccion.y;
+        V.z = -1 * direccion.z;
+
         for(int j = 0; j < luces_length; j++){
           L.x = listaLuces[j]->x - inter->normal.x;
           L.y = listaLuces[j]->y - inter->normal.y;
@@ -116,7 +121,14 @@ COLOR de_que_color(VECTOR ojo, VECTOR direccion){
           if (producto_punto(inter->normal, L) > 0.0 ){
             intersection* obstaculo = F_inter(inter->punto, L);
             if (!obstaculo || obstaculo->t > distance){
-                I += ((producto_punto(inter->normal, L)) * listaLuces[j]->I_p * inter->K_D * fatt);
+              I += ((producto_punto(inter->normal, L)) * listaLuces[j]->I_p * inter->K_D * fatt);
+              // Reflexion especular
+              R.x = 2* ( inter->normal.x )* producto_punto(inter->normal,L) - L.x;
+              R.y = 2* ( inter->normal.y )* producto_punto(inter->normal,L) - L.y;
+              R.z = 2* ( inter->normal.z )* producto_punto(inter->normal,L) - L.z;
+              if (producto_punto(V, R) > 0){
+                  E += powl(producto_punto(V, R), inter->figura->K_N) * inter->figura->K_S * listaLuces[j]->I_p * fatt ;
+              }
             }
             if (obstaculo) free(obstaculo);
           } 
@@ -127,9 +139,16 @@ COLOR de_que_color(VECTOR ojo, VECTOR direccion){
       if (I > 1) I = 1;
       else if (I < 0) I = 0;
 
+      if (E > 1) E = 1;
+      else if (E < 0) E = 0;
+
       color.r = I * (inter->color.r/255);
       color.g = I * (inter->color.g/255);
       color.b = I * (inter->color.b/255);
+
+      color.r += E * (1.0 - color.r);
+      color.g += E * (1.0 - color.g);
+      color.b += E * (1.0 - color.b); 
       free(inter);
   }
   return color;
@@ -147,6 +166,7 @@ intersection* F_inter(VECTOR a, VECTOR d){
     if (inter && inter->t < tmin && inter->t > EPSILON){
       tmin = inter->t;// tmin = d a inter;
       near = inter;//inter = inter con obj;
+      near->figura = listaObjetos[i];
     }
   }
   return near;
@@ -240,6 +260,10 @@ void loadFiguras(){
             listaObjetos[real_object_size]->K_D = strtold(value, NULL);
         } else if (strcasecmp(key, "K_A") == 0){
             listaObjetos[real_object_size]->K_A = strtold(value, NULL);
+        } else if (strcasecmp(key, "K_S") == 0){
+            listaObjetos[real_object_size]->K_S = strtold(value, NULL);
+        } else if (strcasecmp(key, "K_N") == 0){
+            listaObjetos[real_object_size]->K_N = strtold(value, NULL);
         } else if (strcasecmp(key, "color") == 0){
             color_buffer = strtok(value, color_delim);
             listaObjetos[real_object_size]->color.r = atoi(color_buffer);

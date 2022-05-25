@@ -21,7 +21,7 @@ long double y_min = -(H_RES/4);
 
 long double x_e = 0;
 long double y_e = 0;
-long double z_e = -(H_RES/2);
+long double z_e = -(H_RES/2) - 200;
 
 long double I_A = 0.30;
 
@@ -35,6 +35,7 @@ typedef struct{
   COLOR color;
   VECTOR punto;
   VECTOR normal;
+  sphere* figura; 
   long double t;
   long double K_D;
   long double K_A;
