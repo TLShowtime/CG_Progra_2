@@ -5,6 +5,12 @@ typedef struct {
 } COLOR;
 
 typedef struct {
+  long double x;
+  long double y;
+  long double z;
+} point;
+
+typedef struct {
   long double x_c;
   long double y_c;
   long double z_c;
@@ -36,4 +42,19 @@ typedef struct {
   long double c2;
   long double c3;
 } light;
+
+typedef struct {
+  point puntos[30];
+  long double A;
+  long double B;
+  long double C;
+  //long double D;
+  // iluminacion
+  long double K_D; // coeficiente reflexion difusa (material)
+  long double K_A; // ambiente
+  // reflexion difusa
+  long double K_S; // material
+  long double K_N; // mancha blanca
+  COLOR color;
+} porygon;
 

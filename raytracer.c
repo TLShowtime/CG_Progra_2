@@ -225,7 +225,7 @@ intersection* calcInterEsfera(sphere* esfera, VECTOR eye, VECTOR d){
 */
 
 void loadFiguras(){
-    char *filename = "figuras.txt";
+    char *filename = "esferas.txt";
     const unsigned MAX_LENGTH = 256;
 
     FILE *fp = fopen(filename, "r");
@@ -332,6 +332,96 @@ void loadLuces(){
     fclose(fp1);
 };
 
+void loadPoligonos(){
+    char *porygonFile = "poligonos.txt";
+    const unsigned MAX_LENGTH = 256;
+    FILE *fp = fopen(porygonFile, "r");
+    if (fp == NULL){
+        printf("Error: could not open file %s", porygonFile);
+        exit(1);
+    }
+
+    char buffer [MAX_LENGTH];
+    char* color_buffer;
+    char* point_buffer;
+    char* color_delim = ",";
+    char* delim = ";";
+    char* key;
+    char* value;
+
+    int real_porygon_size = 0;
+
+    listaPoligonos[real_porygon_size] = malloc(sizeof(porygon));
+    //listaPoligonos[real_porygon_size]->puntos = point[lista_length];
+    while (fgets(buffer, MAX_LENGTH, fp)){ // read each line
+        
+        key = strtok(buffer, delim);
+        value = strtok(NULL, delim);
+        if (strcasecmp(key, "x") == 0) {
+            point_buffer = strtok(value, color_delim);
+            for (int i = 0; point_buffer != NULL; i++){
+                listaPoligonos[real_porygon_size]->puntos[i].x = strtold(point_buffer, NULL);
+                point_buffer = strtok(NULL, color_delim);
+            }
+        } else if (strcasecmp(key, "y") == 0){
+            point_buffer = strtok(value, color_delim);
+            for (int i = 0; point_buffer != NULL; i++){
+                listaPoligonos[real_porygon_size]->puntos[i].y = strtold(point_buffer, NULL);
+                point_buffer = strtok(NULL, color_delim);
+            }
+        } else if (strcasecmp(key, "z") == 0){
+            point_buffer = strtok(value, color_delim);
+            for (int i = 0; point_buffer != NULL; i++){
+                listaPoligonos[real_porygon_size]->puntos[i].z = strtold(point_buffer, NULL);
+                point_buffer = strtok(NULL, color_delim);
+            }
+
+        } else if (strcasecmp(key, "K_D") == 0){
+            listaPoligonos[real_porygon_size]->K_D = strtold(value, NULL);
+        } else if (strcasecmp(key, "K_A") == 0){
+            listaPoligonos[real_porygon_size]->K_A = strtold(value, NULL);
+        } else if (strcasecmp(key, "K_S") == 0){
+            listaPoligonos[real_porygon_size]->K_S = strtold(value, NULL);
+        } else if (strcasecmp(key, "K_N") == 0){
+            listaPoligonos[real_porygon_size]->K_N = strtold(value, NULL);
+        } else if (strcasecmp(key, "color") == 0){
+            color_buffer = strtok(value, color_delim);
+            listaPoligonos[real_porygon_size]->color.r = atoi(color_buffer);
+            color_buffer = strtok(NULL, color_delim);
+            listaPoligonos[real_porygon_size]->color.g = atoi(color_buffer);
+            color_buffer = strtok(NULL, color_delim);
+            listaPoligonos[real_porygon_size]->color.b = atoi(color_buffer);     
+        } 
+ 
+        if (value == NULL){ // Debe tener un enter para calcular todo
+            point vertex0 = listaPoligonos[real_porygon_size]->puntos[0];
+            point vertex1 = listaPoligonos[real_porygon_size]->puntos[1];
+            listaPoligonos[real_porygon_size]->A = (vertex0.y*vertex1.z) - (vertex0.z*vertex1.y);
+            listaPoligonos[real_porygon_size]->B = (vertex0.z*vertex1.x) - (vertex0.x*vertex1.z);
+            listaPoligonos[real_porygon_size]->C = (vertex0.x*vertex1.y) - (vertex0.y*vertex1.x);
+            long double norma = sqrtl(listaPoligonos[real_porygon_size]->A*listaPoligonos[real_porygon_size]->A + listaPoligonos[real_porygon_size]->B*listaPoligonos[real_porygon_size]->B + listaPoligonos[real_porygon_size]->C*listaPoligonos[real_porygon_size]->C);
+            listaPoligonos[real_porygon_size]->A = listaPoligonos[real_porygon_size]->A/norma;
+            listaPoligonos[real_porygon_size]->B = listaPoligonos[real_porygon_size]->B/norma;
+            listaPoligonos[real_porygon_size]->C = listaPoligonos[real_porygon_size]->C/norma;
+            //listaPoligonos[real_porygon_size]->D = -((A*vertex0.x)+(B*vertex0.y)+(C*vertex0.z));
+            real_porygon_size++;
+            listaPoligonos[real_porygon_size] = malloc(sizeof(porygon));
+        };
+    }
+    point vertex0 = listaPoligonos[real_porygon_size]->puntos[0];
+    point vertex1 = listaPoligonos[real_porygon_size]->puntos[1];
+    listaPoligonos[real_porygon_size]->A = (vertex0.y*vertex1.z) - (vertex0.z*vertex1.y);
+    listaPoligonos[real_porygon_size]->B = (vertex0.z*vertex1.x) - (vertex0.x*vertex1.z);
+    listaPoligonos[real_porygon_size]->C = (vertex0.x*vertex1.y) - (vertex0.y*vertex1.x);
+    long double norma = sqrtl(listaPoligonos[real_porygon_size]->A*listaPoligonos[real_porygon_size]->A + listaPoligonos[real_porygon_size]->B*listaPoligonos[real_porygon_size]->B + listaPoligonos[real_porygon_size]->C*listaPoligonos[real_porygon_size]->C);
+    listaPoligonos[real_porygon_size]->A = listaPoligonos[real_porygon_size]->A/norma;
+    listaPoligonos[real_porygon_size]->B = listaPoligonos[real_porygon_size]->B/norma;
+    listaPoligonos[real_porygon_size]->C = listaPoligonos[real_porygon_size]->C/norma;
+    poligonos_length = real_porygon_size;
+
+    fclose(fp);
+};
+
 int main (){
     int i, j;
     // crear el buffer
@@ -354,6 +444,9 @@ int main (){
     // Carga los archivos de las figuras y luces
     loadFiguras();
     loadLuces();
+    loadPoligonos();
+
+    printf("%Lfx + %Lfy + %Lfz + D \n", listaPoligonos[0]->A, listaPoligonos[0]->B, listaPoligonos[0]->C);
     
     raytracing();
     createImage();

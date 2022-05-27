@@ -13,6 +13,7 @@
 
 int lista_length = LISTA_SIZE;
 int luces_length = LISTA_SIZE;
+int poligonos_length = LISTA_SIZE;
 
 long double x_max = W_RES/4;
 long double x_min = -(W_RES/4);
@@ -65,6 +66,8 @@ long double producto_punto(VECTOR a, VECTOR b);
 
 sphere* listaObjetos[LISTA_SIZE];
 light* listaLuces[LISTA_SIZE];
+porygon* listaPoligonos[LISTA_SIZE];
 
 void loadFiguras();
 void loadLuces();
+void loadPoligonos();
