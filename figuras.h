@@ -45,6 +45,7 @@ typedef struct {
 
 typedef struct {
   point puntos[30];
+  int puntos_size;
   long double A;
   long double B;
   long double C;
@@ -58,3 +59,7 @@ typedef struct {
   COLOR color;
 } porygon;
 
+typedef struct {
+  sphere* circulo;
+  porygon* poligono;
+} figura;

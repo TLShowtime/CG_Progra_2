@@ -8,12 +8,11 @@
 
 #define W_RES 1008
 #define H_RES 567
-#define LISTA_SIZE 30
+#define LISTA_SIZE 10000
 #define EPSILON 0.0005
 
-int lista_length = LISTA_SIZE;
 int luces_length = LISTA_SIZE;
-int poligonos_length = LISTA_SIZE;
+int figuras_length = 0;
 
 long double x_max = W_RES/4;
 long double x_min = -(W_RES/4);
@@ -36,7 +35,7 @@ typedef struct{
   COLOR color;
   VECTOR punto;
   VECTOR normal;
-  sphere* figura; 
+  figura* figura; 
   long double t;
   long double K_D;
   long double K_A;
@@ -64,9 +63,11 @@ long double producto_punto(VECTOR a, VECTOR b);
 ####################################################################################################################
 */
 
-sphere* listaObjetos[LISTA_SIZE];
+sphere* listaEsferas[LISTA_SIZE];
 light* listaLuces[LISTA_SIZE];
 porygon* listaPoligonos[LISTA_SIZE];
+
+figura* listaFiguras[LISTA_SIZE]; // Se usa la lista con todas las figuras, esferas y poligonos
 
 void loadFiguras();
 void loadLuces();
