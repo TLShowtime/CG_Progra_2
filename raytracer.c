@@ -411,14 +411,32 @@ void loadPoligonos(){
         if (value == NULL){ // Debe tener un enter para calcular todo
             point vertex0 = listaPoligonos[real_porygon_size]->puntos[0];
             point vertex1 = listaPoligonos[real_porygon_size]->puntos[1];
-            listaPoligonos[real_porygon_size]->A = (vertex0.y*vertex1.z) - (vertex0.z*vertex1.y);
-            listaPoligonos[real_porygon_size]->B = (vertex0.z*vertex1.x) - (vertex0.x*vertex1.z);
-            listaPoligonos[real_porygon_size]->C = (vertex0.x*vertex1.y) - (vertex0.y*vertex1.x);
-            long double norma = sqrtl(listaPoligonos[real_porygon_size]->A*listaPoligonos[real_porygon_size]->A + listaPoligonos[real_porygon_size]->B*listaPoligonos[real_porygon_size]->B + listaPoligonos[real_porygon_size]->C*listaPoligonos[real_porygon_size]->C);
-            listaPoligonos[real_porygon_size]->A = listaPoligonos[real_porygon_size]->A/norma;
-            listaPoligonos[real_porygon_size]->B = listaPoligonos[real_porygon_size]->B/norma;
-            listaPoligonos[real_porygon_size]->C = listaPoligonos[real_porygon_size]->C/norma;
-            //listaPoligonos[real_porygon_size]->D = -((A*vertex0.x)+(B*vertex0.y)+(C*vertex0.z));
+            point vertex2 = listaPoligonos[real_porygon_size]->puntos[2];
+
+            VECTOR vector1 = {.x = vertex1.x - vertex0.x , .y = vertex1.y - vertex0.y, .z = vertex1.z - vertex0.z };
+            VECTOR vector2 = {.x = vertex2.x - vertex0.x , .y = vertex2.y - vertex0.y, .z = vertex2.z - vertex0.z };
+            
+            //printf("v1.x = %Lf, v1.y = %Lf, v1.z = %Lf\n", vector1.x, vector1.y, vector1.z);
+            //printf("v2.x = %Lf, v2.y = %Lf, v2.z = %Lf\n", vector2.x, vector2.y, vector2.z);
+            
+            listaPoligonos[real_porygon_size]->A = (vector1.y * vector2.z) - (vector1.z * vector2.y);
+            listaPoligonos[real_porygon_size]->B = (vector1.z * vector2.x) - (vector1.x * vector2.z);
+            listaPoligonos[real_porygon_size]->C = (vector1.x * vector2.y) - (vector1.y * vector2.x);
+            listaPoligonos[real_porygon_size]->D = -1 * (listaPoligonos[real_porygon_size]->A * vertex0.x + 
+                                                         listaPoligonos[real_porygon_size]->B * vertex0.y +
+                                                         listaPoligonos[real_porygon_size]->C * vertex0.z  );
+                                                         
+            //printf("A: %Lf, B: %Lf, C: %Lf, D: %Lf\n", listaPoligonos[0]->A, listaPoligonos[0]->B, listaPoligonos[0]->C, listaPoligonos[0]->D);
+
+            long double norma = sqrtl(listaPoligonos[real_porygon_size]->A*listaPoligonos[real_porygon_size]->A + 
+                                      listaPoligonos[real_porygon_size]->B*listaPoligonos[real_porygon_size]->B + 
+                                      listaPoligonos[real_porygon_size]->C*listaPoligonos[real_porygon_size]->C);
+            // Normalizar
+            listaPoligonos[real_porygon_size]->A = listaPoligonos[real_porygon_size]->A / norma;
+            listaPoligonos[real_porygon_size]->B = listaPoligonos[real_porygon_size]->B / norma;
+            listaPoligonos[real_porygon_size]->C = listaPoligonos[real_porygon_size]->C / norma;
+            listaPoligonos[real_porygon_size]->D = listaPoligonos[real_porygon_size]->D / norma;
+
             real_porygon_size++;
             listaPoligonos[real_porygon_size] = malloc(sizeof(porygon));
 
@@ -454,7 +472,7 @@ int main (){
     loadFiguras();
     loadLuces();
     loadPoligonos();
-
+    
     raytracing();
     createImage();
     printf("Todo está sirviendo :)\n");

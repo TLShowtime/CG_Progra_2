@@ -49,7 +49,7 @@ typedef struct {
   long double A;
   long double B;
   long double C;
-  //long double D;
+  long double D;
   // iluminacion
   long double K_D; // coeficiente reflexion difusa (material)
   long double K_A; // ambiente
