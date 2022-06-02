@@ -51,8 +51,14 @@ COLOR de_que_color(VECTOR ojo, VECTOR direccion);
 intersection* F_inter(VECTOR a, VECTOR d);
 
 intersection* calcInterEsfera(sphere* esfera, VECTOR eye, VECTOR d);
+intersection* calcInterPoligono(porygon* poligono, VECTOR eye, VECTOR d);
+bool calcularPuntoEnPoligono(porygon* poligono, VECTOR punto);
+bool contar_pared(two_point punto1, two_point punto2);
 
 long double producto_punto(VECTOR a, VECTOR b);
+
+
+
 
 /*
 ####################################################################################################################

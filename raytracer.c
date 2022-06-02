@@ -130,6 +130,7 @@ COLOR de_que_color(VECTOR ojo, VECTOR direccion){
                   if (inter->figura->circulo){
                     E += powl(producto_punto(V, R), inter->figura->circulo->K_N) * inter->figura->circulo->K_S * listaLuces[j]->I_p * fatt ;
                   } else if (inter->figura->poligono){
+                    //printf("ENtro en reflexion especular jfbanpsibfapigbapgbapigbpaisgbpasbgpiabgpiasbgpiabgpi\n");
                     E += powl(producto_punto(V, R), inter->figura->poligono->K_N) * inter->figura->poligono->K_S * listaLuces[j]->I_p * fatt ;
                     continue;
                   }
@@ -171,8 +172,7 @@ intersection* F_inter(VECTOR a, VECTOR d){
     if (listaFiguras[i]->circulo){
         inter = calcInterEsfera(listaFiguras[i]->circulo, a, d); // calcular interseccion de esferas
     } else if (listaFiguras[i]->poligono){
-        inter = NULL; // calcular interseccion de poligonos
-        continue;
+        inter = calcInterPoligono(listaFiguras[i]->poligono, a, d); // calcular interseccion de poligonos
     }
     if (inter && inter->t < tmin && inter->t > EPSILON){
       tmin = inter->t;// tmin = d a inter;
@@ -229,6 +229,109 @@ intersection* calcInterEsfera(sphere* esfera, VECTOR eye, VECTOR d){
     inter->K_A = esfera->K_A;
     return inter;
 };
+
+intersection* calcInterPoligono(porygon* poligono, VECTOR eye, VECTOR d){
+    long double b, c, t, denom;
+
+    intersection* inter;
+    inter = NULL;
+    
+    VECTOR coef_polygons = {.x = poligono->A, .y = poligono->B, .z = poligono->C};
+    // comprobar si denominador es 0; es perpendicular
+    denom = producto_punto(coef_polygons, d);
+    if (denom == 0){
+        return inter;
+    }    
+
+    t = -1 * (poligono->A*eye.x + poligono->B*eye.y + poligono->C*eye.z + poligono->D ) / denom;
+
+    VECTOR punto_plano = {.x = eye.x + t*d.x, .y = eye.y + t*d.y, .z = eye.z + t*d.z };
+
+    // Ver si el punto esta en el poligono
+    bool enPoligono = calcularPuntoEnPoligono(poligono, punto_plano);
+
+    if (enPoligono){
+        inter = malloc(sizeof(intersection));
+        inter->punto.x = punto_plano.x;
+        inter->punto.y = punto_plano.y;
+        inter->punto.z = punto_plano.z;
+        
+        inter->color = poligono->color;
+        inter->t = t;
+        inter->normal.x = poligono->A;
+        inter->normal.y = poligono->B;
+        inter->normal.z = poligono->C;
+        inter->K_D = poligono->K_D;
+        inter->K_A = poligono->K_A;
+    } 
+
+    return inter;
+};
+
+bool calcularPuntoEnPoligono(porygon* poligono, VECTOR punto){
+    int cont_lineas = 0;
+    int i;
+    char max_coef;
+
+    // Aplastar poligono
+    if ( fabsl(poligono->A) >= fabsl(poligono->B) && fabsl(poligono->A) >= fabsl(poligono->C)) max_coef = 'A';
+    else if (fabsl(poligono->B) >= fabsl(poligono->C)) max_coef = 'B';
+    else max_coef = 'C';
+
+    two_point puntos[poligono->puntos_size];
+
+    // Eliminar un eje y traslada a origen
+    for (i = 0; i < poligono->puntos_size; i++){
+        switch (max_coef) {
+            case 'A': // elimina Xs
+                puntos[i].u = poligono->puntos[i].y - punto.y;
+                puntos[i].v = poligono->puntos[i].z - punto.z;
+                break;
+            case 'B': // elimina Ys
+                puntos[i].u = poligono->puntos[i].x - punto.x;
+                puntos[i].v = poligono->puntos[i].z - punto.z;
+                break;
+            case 'C': // elimina Zs
+                puntos[i].u = poligono->puntos[i].x - punto.x;
+                puntos[i].v = poligono->puntos[i].y - punto.y;
+                break;
+            default:
+                break;
+        }
+    };
+
+    // contar paredes
+    for (i = 0; i < (poligono->puntos_size)-1; i++){
+        if (contar_pared(puntos[i], puntos[i+1])){
+            cont_lineas++;
+        }
+    }
+    if (contar_pared(puntos[(poligono->puntos_size)-1], puntos[0])) cont_lineas++;
+
+    return (cont_lineas % 2 == 1);
+}
+
+bool contar_pared(two_point punto1, two_point punto2){
+    long double m, b;
+    if ( (punto1.u < 0 && punto2.u < 0) ||
+         (punto1.v > 0 && punto2.v > 0) ||
+         (punto1.v < 0 && punto2.v < 0)) { //Rechazo trivial
+        return false;
+
+    } else if ((punto1.u > 0 && punto2.u > 0) && (punto1.v > 0 && punto2.v < 0) ||
+               (punto1.u > 0 && punto2.u > 0) && (punto1.v < 0 && punto2.v > 0)) { // Aceptacion trivial
+        return true;
+    }
+    else { 
+        m = (punto2.v - punto1.v) / (punto2.u - punto1.u); // caso complicado
+        b = punto1.v - m*punto1.u;
+        if ( (-1*b)/m >= 0){ // si x son positivas
+            return true;
+        }
+        return false; 
+    }
+}
+
 /*
 #########################################################################################################################################
 -----------------------------------------------------------------------------------------------------------------------------------------

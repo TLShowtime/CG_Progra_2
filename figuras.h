@@ -11,6 +11,11 @@ typedef struct {
 } point;
 
 typedef struct {
+  long double u;
+  long double v;
+} two_point;
+
+typedef struct {
   long double x_c;
   long double y_c;
   long double z_c;
