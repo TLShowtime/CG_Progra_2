@@ -1,5 +1,5 @@
-# CG-Proyecto 2
-Proyecto programado 2 de Introducción a los gráficos por computadora, semestre 1 2022
+# CG-Proyecto FInal
+Proyecto programado Fianl de Introducción a los gráficos por computadora, semestre 1 2022
 
 Para compilar el proyecto se usa el siguiente comando:
 ```
