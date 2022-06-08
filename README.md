@@ -21,7 +21,7 @@ o
 
 Se crean dos imagenes, un .avs y un .jpg
 
-Se usa un archivo de figuras llamado **figuras.txt** donde la sintaxis es la siguiente:
+Se usa dos archivo de figuras (para tener mejor orden) llamados **esferas.txt** y **poligonos.txt** donde la sintaxis del primero es la siguiente:
 
 ```
     x;value
@@ -30,9 +30,26 @@ Se usa un archivo de figuras llamado **figuras.txt** donde la sintaxis es la sig
     r;value
     K_D;value // valor entre 0-1
     K_A;value // valor entre 0-1
+    K_S;value // valor entre 0-1
+    K_N;value // valor > 0
     color;r_value,g_value,b_value
 
 ```
+y el segundo tiene la siguiente sintaxis:
+
+```
+    x;value, value, ...
+    y;value, value, ...
+    z;value, value, ...
+    K_D;value // valor entre 0-1
+    K_A;value // valor entre 0-1
+    K_S;value // valor entre 0-1
+    K_N;value // valor > 0
+    color;r_value,g_value,b_value
+
+```
+
+
 Cada figura debe estar separada por un ENTER. El archivo debe terminar con un ENTER para registrar la ultima figura. Se supone que la sintaxis es valida.
 
 Se usa un archivo de luces llamado **luces.txt** donde la sintaxis es la siguiente:
