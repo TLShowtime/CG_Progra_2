@@ -23,7 +23,7 @@ long double x_e = 0;
 long double y_e = 0;
 long double z_e = -(H_RES/2) - 200;
 
-long double I_A = 0.30;
+long double I_A = 0.43;
 
 typedef struct {
   long double x;
